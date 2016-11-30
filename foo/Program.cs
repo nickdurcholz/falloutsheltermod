@@ -16,13 +16,22 @@ namespace foo
         private static void Main(string[] args)
         {
             // location => /sdcard/Android/data/com.bethsoft.falloutshelter/files/Vault1.sav
-            // adb push C:\Users\nick.durcholz\Desktop\Vault1_hacked.sav /sdcard/Android/data/com.bethsoft.falloutshelter/files/Vault1.sav
+            // adb shell pm path com.bethsoft.falloutshelter
+            // adb pull /data/app/com.bethsoft.falloutshelter-2/base.apk
+            // adb pull /sdcard/Android/data/com.bethsoft.falloutshelter/files/Vault2.sav
+            // adb push C:\Users\nick.durcholz\Desktop\Vault1_hacked.sav /sdcard/Android/data/com.bethsoft.falloutshelter/files/Vault2.sav
             _passPhrase = StringCipher.GeneratePassPhrase("PlayerData");
-            //var fileName = @"C:\Users\nick.durcholz\Desktop\Vault1.sav";
-            //var saveData = GetHackedVaultData(fileName);
-            SaveJsonVaultData(
-                File.ReadAllText(@"S:\foo\foo\vault1.json"),
-                @"C:\Users\nick.durcholz\Desktop\Vault1_hacked.sav");
+            var saveFile = @"S:\temp\falloutsheltermod\Vault2.sav";
+            var jsonFile = @"S:\temp\falloutsheltermod\Vault2.json";
+            //var json = ReadSaveFile(saveFile);
+            //File.WriteAllText(jsonFile, json, Encoding.UTF8);
+            SaveJsonVaultData(File.ReadAllText(jsonFile), saveFile);
+        }
+
+        private static string ReadSaveFile(string fileName)
+        {
+            var bytes = File.ReadAllBytes(fileName);
+            return Decrypt(new UTF8Encoding().GetString(bytes));
         }
 
         private static void SaveJsonVaultData(string json, string outLocation)
@@ -31,12 +40,6 @@ namespace foo
             var serialized = SerializeData(dictionary);
             var encrypted = Encrypt(serialized, serialized.Length);
             File.WriteAllBytes(outLocation, encrypted);
-        }
-
-        private static VaultData GetHackedVaultData(string fileName)
-        {
-            var json = File.ReadAllText(@"S:\foo\foo\vault1.json");
-            return VaultDataFromJsonString(json, fileName);
         }
 
         public static VaultData GetVaultDataFromBytes(byte[] textBytes, string fileName)
